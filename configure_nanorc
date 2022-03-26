@@ -1,0 +1,66 @@
+#!/bin/bash
+
+cat > ~.nanorc <<EOF
+# Ver numeros de lineas
+set linenumbers
+
+# Si la linea anterior tiene indentacion, la nueva linea tambien la tendra:.
+set autoindent
+
+# De manera predeterminada, si el archivo no tiene una nueva lenea al final del archivo, agrega una,
+# esto puede causar problemas con las sumas de verificacion, por lo que tiendo a tenerlo desactivado.
+set nonewlines
+
+# Cuando se presiona ctrl-x para salir, se guarda automaticamente sin preguntar.
+set tempfile
+
+# Crea una copia de seguridad del archivo que esta editando, para restauraciones rápidas,
+# aunque significa que debe ordenarlo usted mismo.
+set backup
+
+# Le advierte si el archivo ya esta abierto, aunque aun puede proceder a editarlo.
+set locking
+
+# De forma predeterminada, Nano tiene algunos atajos utiles en la parte inferior de la pantalla.
+# Esta opcion hace que no se muestre.
+set nohelp
+
+# Remapear la busqueda de palabras (originalmente es Ctrl+W)
+bind ^f whereis main
+# Remapear la accion de deshacer: ahora funcionara con Ctrl+Z
+bind ^z undo main
+
+# Remapear la accion de deshacer: ahora funcionara con Ctrl+Y
+bind ^y redo main
+
+# Guarda y cierra: ahora funcionara con F1
+bind F1 exit main
+
+# Guarda solamente: ahora funcionara con F2
+bind F2 savefile main
+
+# Busca la siguiente palabra, encontrada anteriormente con la busqueda (ahora Ctrl+F),
+# ahora funcionara con F3
+bind F3 findnext main
+EOF
+
+REQUIRED_PKG="curl"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG | grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
+  sudo apt --yes install $REQUIRED_PKG 
+fi
+
+curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
+
+
+cat >> ~.nanorc <<EOF
+alias snano='sudo nano -m --rcfile=/root/.nanorc'
+alias qedit=’nano -m --tempfile --backup’
+alias sqedit=’sudo -m nano --rcfile=/root/.nanorc --tempfile --backup’
+EOF
+
+
