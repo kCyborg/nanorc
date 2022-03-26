@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cat > ~.nanorc <<EOF
+cat > ~/.nanorc <<EOF
 # Ver numeros de lineas
 set linenumbers
 
@@ -45,6 +45,16 @@ bind F3 findnext main
 EOF
 
 REQUIRED_PKG="curl"
+PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG | grep "install ok installed")
+echo Checking for $REQUIRED_PKG: $PKG_OK
+if [ "" = "$PKG_OK" ]; then
+  echo "No $REQUIRED_PKG. Setting up $REQUIRED_PKG."
+  echo iptables-persistent iptables-persistent/autosave_v4 boolean true | debconf-set-selections
+  echo iptables-persistent iptables-persistent/autosave_v6 boolean true | debconf-set-selections
+  sudo apt --yes install $REQUIRED_PKG 
+fi
+
+REQUIRED_PKG="unzip"
 PKG_OK=$(dpkg-query -W --showformat='${Status}\n' $REQUIRED_PKG | grep "install ok installed")
 echo Checking for $REQUIRED_PKG: $PKG_OK
 if [ "" = "$PKG_OK" ]; then
