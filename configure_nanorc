@@ -67,7 +67,7 @@ fi
 curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
 
 
-cat >> ~.nanorc <<EOF
+cat >> ~/.bashrc <<EOF
 alias snano='sudo nano -m --rcfile=/root/.nanorc'
 alias qedit=’nano -m --tempfile --backup’
 alias sqedit=’sudo -m nano --rcfile=/root/.nanorc --tempfile --backup’
